@@ -270,6 +270,7 @@ public class GolemEnemy : MonoBehaviour
         Destroy(gameObject, 2f);
     }
 
+    // Vẽ Gizmos để dễ dàng chỉnh sửa trong Editor
     void OnDrawGizmosSelected()
     {
         Vector3 center = Application.isPlaying ? startPosition : transform.position;

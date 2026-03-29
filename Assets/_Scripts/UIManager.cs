@@ -61,7 +61,6 @@ public class UIManager : MonoBehaviour
     // Toggle show/hide password for register panel
     public void OnToggleShowPassword(bool isOn)
     {
-        // isOn == true means "Show password" checked -> show plain text
         SetPasswordFieldVisibility(inputPasswordRegister, !isOn);
         SetPasswordFieldVisibility(inputPasswordConfirm, !isOn);
     }
@@ -131,7 +130,7 @@ public class UIManager : MonoBehaviour
                             messageLogin.text = "Đăng nhập thành công!";
                         }
 
-                        // Load game scene
+                        // Load Scene *******************************************
                         SceneManager.LoadScene("MainScene");
                     }
                     else
@@ -139,16 +138,16 @@ public class UIManager : MonoBehaviour
                         if (messageLogin != null)
                         {
                             messageLogin.color = Color.red;
-                            messageLogin.text = "Đăng nhập thất bại: Không nhận token.";
+                            messageLogin.text = "Đăng nhập thất bại. Vui lòng thử lại.";
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     if (messageLogin != null)
                     {
                         messageLogin.color = Color.red;
-                        messageLogin.text = "Lỗi parse response: " + e.Message;
+                        messageLogin.text = "Có lỗi xảy ra. Vui lòng thử lại sau.";
                     }
                 }
             }
@@ -157,8 +156,7 @@ public class UIManager : MonoBehaviour
                 if (messageLogin != null)
                 {
                     messageLogin.color = Color.red;
-                    string resp = req.downloadHandler != null ? req.downloadHandler.text : req.error;
-                    messageLogin.text = "Đăng nhập thất bại: " + resp;
+                    messageLogin.text = GetFriendlyErrorMessage(req.responseCode, req.downloadHandler?.text);
                 }
             }
         }
@@ -242,7 +240,7 @@ public class UIManager : MonoBehaviour
                 if (messageRegister != null)
                 {
                     messageRegister.color = Color.green;
-                    messageRegister.text = "Đăng ký thành công. Vui lòng kiểm tra email nếu cần xác thực.";
+                    messageRegister.text = "Đăng ký thành công";
                 }
 
                 // Optionally auto-fill login email and switch to login panel
@@ -257,8 +255,7 @@ public class UIManager : MonoBehaviour
                 if (messageRegister != null)
                 {
                     messageRegister.color = Color.red;
-                    string resp = req.downloadHandler != null ? req.downloadHandler.text : req.error;
-                    messageRegister.text = "Đăng ký thất bại: " + resp;
+                    messageRegister.text = GetFriendlyErrorMessage(req.responseCode, req.downloadHandler?.text);
                 }
             }
         }
@@ -278,10 +275,54 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Helper method to convert HTTP errors to friendly messages
+    string GetFriendlyErrorMessage(long responseCode, string responseText)
+    {
+        switch (responseCode)
+        {
+            case 400:
+                // Try to parse error message from Supabase
+                if (!string.IsNullOrEmpty(responseText) && responseText.Contains("User already registered"))
+                {
+                    return "Email này đã được đăng ký.";
+                }
+                if (!string.IsNullOrEmpty(responseText) && responseText.Contains("Invalid login credentials"))
+                {
+                    return "Email hoặc mật khẩu không đúng.";
+                }
+                return "Thông tin không hợp lệ. Vui lòng kiểm tra lại.";
+
+            case 401:
+                return "Email hoặc mật khẩu không đúng.";
+
+            case 404:
+                return "Không tìm thấy dịch vụ. Vui lòng kiểm tra cấu hình.";
+
+            case 422:
+                return "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+
+            case 429:
+                return "Bạn đã thử quá nhiều lần. Vui lòng chờ và thử lại.";
+
+            case 500:
+            case 502:
+            case 503:
+            case 504:
+                return "Lỗi máy chủ. Vui lòng thử lại sau.";
+
+            case 0:
+                return "Không thể kết nối. Vui lòng kiểm tra kết nối mạng.";
+
+            default:
+                return "Có lỗi xảy ra. Vui lòng thử lại sau.";
+        }
+    }
+
     // ---------------- RESET PASSWORD ----------------
     public void OnResetPasswordButton()
     {
         // Implement reset password flow if needed (call /auth/v1/recover)
+
     }
 
     // Data classes

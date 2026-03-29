@@ -5287,7 +5287,7 @@ MonoBehaviour:
   toggleShowPassword: {fileID: 1079702750}
   messageRegister: {fileID: 1225602111}
   projectUrl: https://oeipryfmgfgwccpaezxp.supabase.co
-  anonKey: sb_publishable_37LMeRAEbMKL3Lgiitg1WQ_y21kd8k0
+  anonKey: sb_publishable_LMbWILp4lRFwPgZCn2nQ7w_UW4BIyEL
 --- !u!4 &2051557167
 Transform:
   m_ObjectHideFlags: 0
